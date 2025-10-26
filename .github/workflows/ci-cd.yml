@@ -1,0 +1,52 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup SSH
+      uses: webfactory/ssh-agent@v0.9.0
+      with:
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+        
+    - name: Setup deployment environment
+      run: |
+        echo "Setting up deployment environment from GitHub Secrets..."
+        echo "HOST=${{ secrets.HOST }} ||" >> $GITHUB_ENV
+        echo "SSH_PORT=${{ secrets.SSH_PORT || '22' }}" >> $GITHUB_ENV
+        echo "DEPLOY_PATH=${{ secrets.DEPLOY_PATH || '/home/subvivah/htdocs/subvivah.com/subvivah.com' }}" >> $GITHUB_ENV
+        echo "ENCRYPTION_KEY=${{ secrets.ENCRYPTION_KEY }}" >> $GITHUB_ENV
+        
+    - name: Deploy to server
+      run: |
+        echo "🚀 Starting deployment to server..."
+        
+        # Make deploy.sh executable if not already
+        if [ -f deploy.sh ]; then
+          chmod +x deploy.sh
+          echo "✅ deploy.sh is now executable"
+        else
+          echo "❌ deploy.sh not found!"
+          exit 1
+        fi
+         
+        # Deploy on server
+        echo "🚀 Deploying to server..."
+        ssh -o StrictHostKeyChecking=no -p $SSH_PORT $HOST "cd $DEPLOY_PATH && echo 'ENCRYPTION_KEY=$ENCRYPTION_KEY' > .env.git && echo '✅ .env.git file created/updated' && chmod +x deploy.sh && ./deploy.sh"
+
+    - name: Deployment Status
+      run: |
+        echo "✅ CI/CD Pipeline completed successfully!"
+        echo "🌐 Application should be running on your server"
+        echo "📊 Check PM2 status on your server for application health"

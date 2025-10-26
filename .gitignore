@@ -1,66 +1,51 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-backup/
-
-# dependencies
+# Dependencies
 /node_modules
 /.pnp
 .pnp.js
 
-# testing
-/coverage
+backup2/
 
-# next.js
+# Next.js
 /.next/
 /out/
+/build
+.next
 
-# production
+__pycache__/
+
+# Testing
+/coverage
+
+# Production
 /build
 
-# misc
+# Misc
 .DS_Store
 *.pem
 
-# debug
+# Debug
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-
-# local env files
-.env*.local
+firebase-debug.log*
+firebase-debug.*.log*
+myenv
+venv
+archive.zip
+# Local env files (encrypted .env.production is now tracked)
+# .env.production - now encrypted and tracked with git-crypt
 .env
+.env.local
+.env.development.local
+.env.production
+.env.test.local
 
-# vercel
-.vercel
+# Encryption key (never commit this!)
+ENCRYPTION_KEY
 
-# typescript
-*.tsbuildinfo
-next-env.d.ts
+test-api.js
 
-# IDE
-.idea/
-.vscode/
-*.swp
-*.swo
+livefile.zip
+*.zip
 
-# OS generated files
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-
-# Logs
-logs
-*.log
-
-# Optional npm cache directory
-.npm
-
-# Optional eslint cache
-.eslintcache
-
-# Optional stylelint cache
-.stylelintcache
-
+.env.git
