@@ -23,10 +23,8 @@ nextApp.prepare().then(() => {
   // Serve static files from the .next directory
   app.use('/_next', express.static(path.join(__dirname, '.next')));
 
-  // Handle API routes
-  app.use('/api', express.json());
-
   // Handle all other routes with Next.js
+  // Note: Next.js handles its own request body parsing for API routes
   app.all('*', (req, res) => {
     const parsedUrl = parse(req.url, true);
     return handle(req, res, parsedUrl);
