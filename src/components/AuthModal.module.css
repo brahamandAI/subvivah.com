@@ -1,0 +1,102 @@
+.auth-modal {
+  perspective: 1200px;
+  background: rgba(30, 0, 60, 0.92);
+  box-shadow:
+    0 0 0 6px #a21caf55,
+    0 0 32px 8px #f472b6cc,
+    0 8px 32px 0 rgba(80, 0, 120, 0.37);
+  border-radius: 3rem;
+  transition: box-shadow 0.3s, background 0.3s;
+  color: #fff;
+  backdrop-filter: blur(18px) saturate(180%);
+  -webkit-backdrop-filter: blur(18px) saturate(180%);
+  overflow: hidden;
+}
+
+.animate-flip {
+  animation: flip-card 0.3s cubic-bezier(0.4,0.2,0.2,1) forwards;
+}
+
+@keyframes flip-card {
+  0% {
+    transform: rotateY(0deg);
+  }
+  100% {
+    transform: rotateY(180deg);
+  }
+}
+
+.gradient-btn {
+  background: linear-gradient(90deg, #a21caf 0%, #f472b6 100%);
+  color: #fff;
+  border-radius: 9999px;
+  font-weight: 600;
+  box-shadow: 0 2px 12px 0 #a21caf44;
+  transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+}
+.gradient-btn:hover {
+  background: linear-gradient(90deg, #9333ea 0%, #ec4899 100%);
+  transform: scale(1.04);
+  box-shadow: 0 4px 24px 0 #f472b6aa;
+}
+
+.auth-modal input,
+.auth-modal label {
+  color: #fff !important;
+}
+
+.auth-modal input {
+  background: rgba(255,255,255,0.08);
+  border: 1.5px solid #a21caf;
+  border-radius: 1.5rem;
+  color: #fff;
+}
+.auth-modal input:focus {
+  border-color: #f472b6;
+  background: rgba(255,255,255,0.15);
+}
+
+.auth-modal .text-gray-600,
+.auth-modal .text-gray-700 {
+  color: #e0d7f7 !important;
+}
+
+.auth-modal .text-black,
+.auth-modal .text-gray-800 {
+  color: #fff !important;
+}
+
+.auth-modal .text-purple-600,
+.auth-modal .text-purple-700 {
+  color: #f472b6 !important;
+}
+
+.auth-modal .font-medium {
+  font-weight: 600;
+}
+
+.auth-modal .shadow-xl {
+  box-shadow: 0 8px 32px 0 rgba(80, 0, 120, 0.37), 0 0 0 2px #a21caf, 0 0 16px 2px #f472b6;
+}
+
+/* Close button rounded */
+.auth-modal button[onClick*="onClose"] {
+  border-radius: 9999px;
+}
+
+/* Checkbox rounded */
+.auth-modal input[type="checkbox"] {
+  border-radius: 0.75rem;
+}
+
+/* Ensure all child elements are rounded */
+.auth-modal * {
+  border-radius: inherit;
+}
+
+@media (max-width: 640px) {
+  .auth-modal {
+    border-radius: 2rem;
+    padding: 0.5rem;
+  }
+} 

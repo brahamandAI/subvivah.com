@@ -1,0 +1,40 @@
+{
+  "models": {
+    "fairface": {
+      "name": "FairFace",
+      "description": "Gender and age prediction model trained on diverse faces including South Asian",
+      "accuracy": "~91% on diverse test set",
+      "optimized_for": ["South Asian", "Indian", "Pakistani", "Bengali"],
+      "input_size": [224, 224],
+      "outputs": ["gender", "age", "race"]
+    },
+    "buffalo_l": {
+      "name": "Buffalo_L",
+      "description": "InsightFace model with excellent performance on Asian features",
+      "accuracy": "~95% on Asian faces",
+      "optimized_for": ["East Asian", "South Asian", "Southeast Asian"],
+      "input_size": [112, 112],
+      "outputs": ["gender", "age", "embeddings"]
+    },
+    "indian_face": {
+      "name": "Indian Face Classifier",
+      "description": "Custom model trained specifically on Indian facial features",
+      "accuracy": "~93% on Indian test set",
+      "optimized_for": ["Indian", "Punjabi", "Tamil", "Bengali", "Marathi"],
+      "input_size": [160, 160],
+      "outputs": ["gender", "age", "region"]
+    }
+  },
+  "setup_instructions": {
+    "fairface": {
+      "download_url": "https://github.com/dchen236/FairFace/releases",
+      "files_needed": ["model.json", "weights.bin"],
+      "preprocessing": "Standard ImageNet normalization"
+    },
+    "buffalo_l": {
+      "download_url": "https://github.com/deepinsight/insightface/tree/master/model_zoo",
+      "files_needed": ["model.json", "weights.bin"],
+      "preprocessing": "Face alignment and normalization"
+    }
+  }
+}

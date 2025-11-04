@@ -1,0 +1,100 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: url('/images/home-bg.jpg') no-repeat center center fixed;
+  background-size: cover;
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Add styles for input fields */
+input, select, textarea {
+  color: #fff !important;
+  background-color: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+input::placeholder, select::placeholder, textarea::placeholder {
+  color: rgba(255, 255, 255, 0.5) !important;
+}
+
+/* Dark mode overrides */
+@media (prefers-color-scheme: dark) {
+  input, select, textarea {
+    color: #fff !important;
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  }
+  
+  input::placeholder, select::placeholder, textarea::placeholder {
+    color: rgba(255, 255, 255, 0.5) !important;
+  }
+}
+
+/* --- Login Modal Custom Styles --- */
+.login-modal input {
+  color: #000 !important;
+  background-color: #ffffff !important;
+  border: 1px solid rgba(0, 0, 0, 0.5) !important;
+}
+
+.login-modal input::placeholder {
+  color: #666 !important;
+}
+
+/* --- Register Modal Custom Styles --- */
+.register-modal input {
+  color: #000 !important;
+  background-color: #ffffff !important;
+  border: 1px solid rgba(0, 0, 0, 0.5) !important;
+}
+
+.register-modal input::placeholder {
+  color: #666 !important;
+}
+
+/* --- Edit Profile Modal Custom Styles --- */
+.edit-profile-modal input,
+.edit-profile-modal select,
+.edit-profile-modal textarea {
+  background: #2d1a4a !important;
+  color: #fff !important;
+  border: 1px solid #5a2ea6 !important;
+}
+
+.edit-profile-modal input::placeholder,
+.edit-profile-modal textarea::placeholder {
+  color: #b39ddb !important;
+}
+
+.edit-profile-modal ::-webkit-scrollbar {
+  width: 8px;
+  background: #2d1a4a;
+}
+.edit-profile-modal ::-webkit-scrollbar-thumb {
+  background: #5a2ea6;
+  border-radius: 4px;
+}
+
+.edit-profile-modal {
+  scrollbar-width: thin;
+  scrollbar-color: #5a2ea6 #2d1a4a;
+}
