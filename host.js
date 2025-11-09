@@ -10,7 +10,7 @@ const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
 const readline = require('readline');
-const { Client } = require('ssh2');
+const Module = require('module');
 
 // Configuration - UPDATE THESE VALUES
 const SERVER_USER = 'root';
@@ -35,6 +35,38 @@ const print = {
   error: (msg) => console.log(`${colors.red}❌${colors.reset} ${msg}`),
 };
 
+// Ensure Node can resolve globally installed modules (e.g., ssh2)
+function ensureGlobalNodePath() {
+  if (process.env.NODE_PATH && process.env.NODE_PATH.length > 0) {
+    return;
+  }
+
+  try {
+    const npmRoot = execSync('npm root -g', { stdio: 'pipe' }).toString().trim();
+    if (npmRoot) {
+      process.env.NODE_PATH = npmRoot;
+      Module._initPaths();
+    }
+  } catch (error) {
+    // Ignore; we'll fall back to normal resolution and show a clear error later if needed
+  }
+}
+
+let ssh2Module = null;
+function getSSH2() {
+  if (!ssh2Module) {
+    ensureGlobalNodePath();
+    try {
+      ssh2Module = require('ssh2');
+    } catch (error) {
+      throw new Error(
+        "Module 'ssh2' not found. Install it with `npm install ssh2` or ensure NODE_PATH points to the global npm root."
+      );
+    }
+  }
+  return ssh2Module;
+}
+
 // SSH Connection Manager
 class SSHManager {
   constructor(host, username) {
@@ -45,6 +77,7 @@ class SSHManager {
   }
 
   async connect() {
+    const { Client } = getSSH2();
     return new Promise((resolve, reject) => {
       this.conn = new Client();
       
@@ -523,6 +556,71 @@ async function backupEnvsToGitHubFromLocal() {
   }
 }
 
+// Download latest env backup from GitHub and extract locally
+async function downloadEnvsFromGitHub() {
+  const currentDir = process.cwd();
+  const backupRepoUrl = 'https://github.com/brahamandAI/backup-envs';
+  const cloneDir = path.join(currentDir, 'backup-envs-download');
+
+  const cleanup = () => {
+    if (fs.existsSync(cloneDir)) {
+      execCommand(`rm -rf ${cloneDir}`, { stdio: 'pipe' });
+    }
+  };
+
+  try {
+    print.info('Preparing to download env backups from GitHub...');
+
+    // Ensure no previous clone exists
+    cleanup();
+
+    print.info('Cloning backup repository...');
+    if (!execCommand(`git clone ${backupRepoUrl} ${cloneDir}`, { stdio: 'pipe' })) {
+      print.error('Failed to clone backup repository');
+      return false;
+    }
+    print.success('Repository cloned');
+
+    const files = fs.readdirSync(cloneDir)
+      .filter((file) => file.startsWith('subvivah') && file.endsWith('.zip'));
+
+    if (files.length === 0) {
+      print.error('No subvivah*.zip backups found in repository');
+      cleanup();
+      return false;
+    }
+
+    const latestFile = files
+      .map((file) => {
+        const filePath = path.join(cloneDir, file);
+        const stats = fs.statSync(filePath);
+        return { file, time: stats.mtimeMs };
+      })
+      .sort((a, b) => b.time - a.time)[0].file;
+
+    print.info(`Latest backup found: ${latestFile}`);
+
+    const zipPath = path.join(cloneDir, latestFile);
+    print.info('Extracting backup to project root...');
+
+    if (!execCommand(`unzip -o ${zipPath} -d ${currentDir}`)) {
+      print.error('Failed to extract backup');
+      cleanup();
+      return false;
+    }
+
+    print.success('Backup extracted successfully');
+
+    cleanup();
+    print.success('Cleanup completed');
+    return true;
+  } catch (error) {
+    print.error(`Error while downloading backup: ${error.message}`);
+    cleanup();
+    return false;
+  }
+}
+
 // Main function
 async function main() {
   let sshManager = null;
@@ -537,24 +635,25 @@ async function main() {
 
     // Show options menu
     console.log('Select an option:');
-    console.log('  1. Update env files in the server');
-    console.log('  2. Run deploy.sh in the server');
-    console.log('  3. Backup envs to GitHub from the server');
-    console.log('  4. Backup envs to GitHub from local');
+console.log('  1. sync env files to the server');
+console.log('  2. Run deploy.sh in the server');
+console.log('  3. Backup envs to GitHub from the server');
+console.log('  4. Backup envs to GitHub from local');
+console.log('  5. Download latest envs backup from GitHub');
     console.log('');
 
-    const option = await askOption('Enter your choice (1, 2, 3, or 4): ');
+const option = await askOption('Enter your choice (1, 2, 3, 4, or 5): ');
     console.log('');
 
-    if (option !== '1' && option !== '2' && option !== '3' && option !== '4') {
-      print.error('Invalid option. Please choose 1, 2, 3, or 4.');
+if (!['1', '2', '3', '4', '5'].includes(option)) {
+  print.error('Invalid option. Please choose 1, 2, 3, 4, or 5.');
       process.exit(1);
     }
 
     console.log('');
 
-    // Connect to SSH server (needed for options 1, 2, and 3, but not 4)
-    if (option !== '4') {
+// Connect to SSH server (needed for options 1, 2, and 3)
+if (['1', '2', '3'].includes(option)) {
       print.info('Connecting to server...');
       sshManager = new SSHManager(SERVER_HOST, SERVER_USER);
       await sshManager.connect();
@@ -621,6 +720,16 @@ async function main() {
       }
     }
 
+// Option 5: Download envs from GitHub
+if (option === '5') {
+  if (await downloadEnvsFromGitHub()) {
+    print.success('Environments downloaded successfully!');
+  } else {
+    print.error('Download failed');
+    process.exit(1);
+  }
+}
+
     // Disconnect from SSH (only if connected)
     if (sshManager) {
       await sshManager.disconnect();
@@ -637,3 +746,4 @@ async function main() {
 
 // Run the script
 main();
+
