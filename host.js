@@ -13,10 +13,14 @@ const readline = require('readline');
 const Module = require('module');
 
 // Configuration - UPDATE THESE VALUES
-const SERVER_USER = 'root';
-const SERVER_HOST = '100.25.110.245';
-const APP_PATH = '/home/subvivah/htdocs/subvivah.com/subvivah.com';
+const SERVER_USER = 'ubuntu';
+const SERVER_HOST = 'subvivah.com';
+const APP_PATH = '/home/ubuntu/htdocs/subvivah';
 const DEPLOY_SCRIPT = './deploy.sh';
+const BACKUP_REPO_URL = 'https://github.com/brahamandAI/backup-envs';
+const BACKUP_REPO_DIR_NAME = 'backup-envs';
+const BACKUP_REPO_DOWNLOAD_DIR_NAME = 'backup-envs-download';
+const BACKUP_FILENAME_PREFIX = 'subvivah';
 
 // Colors for output
 const colors = {
@@ -348,14 +352,13 @@ async function backupEnvsToGitHub(sshManager) {
     // Step 4: Git operations - clone, add zip, commit, push
     print.info('Preparing git operations...');
     
-    const backupRepoUrl = 'https://github.com/brahamandAI/backup-envs';
-    const backupRepoDir = path.join(currentDir, 'backup-envs');
+    const backupRepoDir = path.join(currentDir, BACKUP_REPO_DIR_NAME);
     const zipInRepoPath = path.join(backupRepoDir, zipFileName);
     
     try {
       // Clone the backup repository
       print.info('Cloning backup repository...');
-      if (!execCommand(`git clone ${backupRepoUrl} backup-envs`, { stdio: 'pipe' })) {
+      if (!execCommand(`git clone ${BACKUP_REPO_URL} ${BACKUP_REPO_DIR_NAME}`, { stdio: 'pipe' })) {
         print.error('Failed to clone backup repository');
         // Clean up local zip file
         if (fs.existsSync(localZipPath)) {
@@ -374,33 +377,33 @@ async function backupEnvsToGitHub(sshManager) {
       print.info('Adding zip file to git...');
       const commitMessage = `${dirName}_${timestamp}`;
       
-      if (!execCommand(`cd backup-envs && git add ${zipFileName}`, { stdio: 'pipe' })) {
+      if (!execCommand(`cd ${BACKUP_REPO_DIR_NAME} && git add ${zipFileName}`, { stdio: 'pipe' })) {
         print.error('Failed to add file to git');
         // Clean up
         if (fs.existsSync(backupRepoDir)) {
-          execCommand(`rm -rf backup-envs`, { stdio: 'pipe' });
+          execCommand(`rm -rf ${BACKUP_REPO_DIR_NAME}`, { stdio: 'pipe' });
         }
         return false;
       }
       print.success('File added to git');
       
       print.info('Committing changes...');
-      if (!execCommand(`cd backup-envs && git commit -m "${commitMessage}"`, { stdio: 'pipe' })) {
+      if (!execCommand(`cd ${BACKUP_REPO_DIR_NAME} && git commit -m "${commitMessage}"`, { stdio: 'pipe' })) {
         print.error('Failed to commit changes');
         // Clean up
         if (fs.existsSync(backupRepoDir)) {
-          execCommand(`rm -rf backup-envs`, { stdio: 'pipe' });
+          execCommand(`rm -rf ${BACKUP_REPO_DIR_NAME}`, { stdio: 'pipe' });
         }
         return false;
       }
       print.success('Changes committed');
       
       print.info('Pushing to GitHub...');
-      if (!execCommand(`cd backup-envs && git push origin main`, { stdio: 'pipe' })) {
+      if (!execCommand(`cd ${BACKUP_REPO_DIR_NAME} && git push origin main`, { stdio: 'pipe' })) {
         print.error('Failed to push to GitHub');
         // Clean up
         if (fs.existsSync(backupRepoDir)) {
-          execCommand(`rm -rf backup-envs`, { stdio: 'pipe' });
+          execCommand(`rm -rf ${BACKUP_REPO_DIR_NAME}`, { stdio: 'pipe' });
         }
         return false;
       }
@@ -409,7 +412,7 @@ async function backupEnvsToGitHub(sshManager) {
       // Step 5: Clean up
       print.info('Cleaning up...');
       if (fs.existsSync(backupRepoDir)) {
-        execCommand(`rm -rf backup-envs`, { stdio: 'pipe' });
+        execCommand(`rm -rf ${BACKUP_REPO_DIR_NAME}`, { stdio: 'pipe' });
       }
       print.success('Cleanup completed');
       
@@ -418,7 +421,7 @@ async function backupEnvsToGitHub(sshManager) {
       print.error(`Error during git operations: ${error.message}`);
       // Clean up on error
       if (fs.existsSync(backupRepoDir)) {
-        execCommand(`rm -rf backup-envs`, { stdio: 'pipe' });
+        execCommand(`rm -rf ${BACKUP_REPO_DIR_NAME}`, { stdio: 'pipe' });
       }
       if (fs.existsSync(localZipPath)) {
         fs.unlinkSync(localZipPath);
@@ -473,14 +476,13 @@ async function backupEnvsToGitHubFromLocal() {
     // Step 2: Git operations - clone, add zip, commit, push
     print.info('Preparing git operations...');
     
-    const backupRepoUrl = 'https://github.com/brahamandAI/backup-envs';
-    const backupRepoDir = path.join(currentDir, 'backup-envs');
+    const backupRepoDir = path.join(currentDir, BACKUP_REPO_DIR_NAME);
     const zipInRepoPath = path.join(backupRepoDir, zipFileName);
     
     try {
       // Clone the backup repository
       print.info('Cloning backup repository...');
-      if (!execCommand(`git clone ${backupRepoUrl} backup-envs`, { stdio: 'pipe' })) {
+      if (!execCommand(`git clone ${BACKUP_REPO_URL} ${BACKUP_REPO_DIR_NAME}`, { stdio: 'pipe' })) {
         print.error('Failed to clone backup repository');
         // Clean up local zip file
         if (fs.existsSync(localZipPath)) {
@@ -499,33 +501,33 @@ async function backupEnvsToGitHubFromLocal() {
       print.info('Adding zip file to git...');
       const commitMessage = `${dirName}_${timestamp}`;
       
-      if (!execCommand(`cd backup-envs && git add ${zipFileName}`, { stdio: 'pipe' })) {
+      if (!execCommand(`cd ${BACKUP_REPO_DIR_NAME} && git add ${zipFileName}`, { stdio: 'pipe' })) {
         print.error('Failed to add file to git');
         // Clean up
         if (fs.existsSync(backupRepoDir)) {
-          execCommand(`rm -rf backup-envs`, { stdio: 'pipe' });
+          execCommand(`rm -rf ${BACKUP_REPO_DIR_NAME}`, { stdio: 'pipe' });
         }
         return false;
       }
       print.success('File added to git');
       
       print.info('Committing changes...');
-      if (!execCommand(`cd backup-envs && git commit -m "${commitMessage}"`, { stdio: 'pipe' })) {
+      if (!execCommand(`cd ${BACKUP_REPO_DIR_NAME} && git commit -m "${commitMessage}"`, { stdio: 'pipe' })) {
         print.error('Failed to commit changes');
         // Clean up
         if (fs.existsSync(backupRepoDir)) {
-          execCommand(`rm -rf backup-envs`, { stdio: 'pipe' });
+          execCommand(`rm -rf ${BACKUP_REPO_DIR_NAME}`, { stdio: 'pipe' });
         }
         return false;
       }
       print.success('Changes committed');
       
       print.info('Pushing to GitHub...');
-      if (!execCommand(`cd backup-envs && git push origin main`, { stdio: 'pipe' })) {
+      if (!execCommand(`cd ${BACKUP_REPO_DIR_NAME} && git push origin main`, { stdio: 'pipe' })) {
         print.error('Failed to push to GitHub');
         // Clean up
         if (fs.existsSync(backupRepoDir)) {
-          execCommand(`rm -rf backup-envs`, { stdio: 'pipe' });
+          execCommand(`rm -rf ${BACKUP_REPO_DIR_NAME}`, { stdio: 'pipe' });
         }
         return false;
       }
@@ -534,7 +536,7 @@ async function backupEnvsToGitHubFromLocal() {
       // Step 3: Clean up
       print.info('Cleaning up...');
       if (fs.existsSync(backupRepoDir)) {
-        execCommand(`rm -rf backup-envs`, { stdio: 'pipe' });
+        execCommand(`rm -rf ${BACKUP_REPO_DIR_NAME}`, { stdio: 'pipe' });
       }
       print.success('Cleanup completed');
       
@@ -543,7 +545,7 @@ async function backupEnvsToGitHubFromLocal() {
       print.error(`Error during git operations: ${error.message}`);
       // Clean up on error
       if (fs.existsSync(backupRepoDir)) {
-        execCommand(`rm -rf backup-envs`, { stdio: 'pipe' });
+        execCommand(`rm -rf ${BACKUP_REPO_DIR_NAME}`, { stdio: 'pipe' });
       }
       if (fs.existsSync(localZipPath)) {
         fs.unlinkSync(localZipPath);
@@ -559,8 +561,7 @@ async function backupEnvsToGitHubFromLocal() {
 // Download latest env backup from GitHub and extract locally
 async function downloadEnvsFromGitHub() {
   const currentDir = process.cwd();
-  const backupRepoUrl = 'https://github.com/brahamandAI/backup-envs';
-  const cloneDir = path.join(currentDir, 'backup-envs-download');
+  const cloneDir = path.join(currentDir, BACKUP_REPO_DOWNLOAD_DIR_NAME);
 
   const cleanup = () => {
     if (fs.existsSync(cloneDir)) {
@@ -575,14 +576,14 @@ async function downloadEnvsFromGitHub() {
     cleanup();
 
     print.info('Cloning backup repository...');
-    if (!execCommand(`git clone ${backupRepoUrl} ${cloneDir}`, { stdio: 'pipe' })) {
+    if (!execCommand(`git clone ${BACKUP_REPO_URL} ${cloneDir}`, { stdio: 'pipe' })) {
       print.error('Failed to clone backup repository');
       return false;
     }
     print.success('Repository cloned');
 
     const files = fs.readdirSync(cloneDir)
-      .filter((file) => file.startsWith('subvivah') && file.endsWith('.zip'));
+      .filter((file) => file.startsWith(BACKUP_FILENAME_PREFIX) && file.endsWith('.zip'));
 
     if (files.length === 0) {
       print.error('No subvivah*.zip backups found in repository');
